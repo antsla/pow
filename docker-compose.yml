@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  pow-server:
+    build:
+      dockerfile: .docker/app.Dockerfile
+      context: ./
+      args:
+        SERVICE_NAME: pow-server
+    environment:
+      - TCP_BIND=8081
+    volumes:
+      - ./pow-server:/app/pow-server:delegated
+      - ./.docker/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: /entrypoint.sh
+    networks:
+      - pow
+
+  pow-client:
+    build:
+      dockerfile: .docker/app.Dockerfile
+      context: ./
+      args:
+        SERVICE_NAME: pow-client
+    environment:
+      - HOST=pow-server
+      - PORT=8081
+    volumes:
+      - ./pow-client:/app/pow-client:delegated
+      - ./.docker/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: /entrypoint.sh
+    networks:
+      - pow
+
+volumes:
+  data:
+
+networks:
+  pow:
